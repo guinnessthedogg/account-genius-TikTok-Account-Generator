@@ -236,8 +236,12 @@ if __name__ == "__main__":
     
     if os.getenv("accounts_to_register") is not None and  os.getenv("accounts_to_register") !='':
         accounts_to_register = int(os.getenv("accounts_to_register"))
+    else:
+        accounts_to_register=None
     if os.getenv("threads") is not None and  os.getenv("threads") !='':
         threads =int(os.getenv("threads")) 
+    else:
+        threads=None        
     if  platform.system()=='Linux':
 
         Account(accounts_to_register=accounts_to_register,threads=threads).start()
