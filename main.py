@@ -18,15 +18,15 @@ class Output:
         Console.printOther(str(txt), PrintType.CLEAN)
 
 class Account:
-    def __init__(self,accounts_to_register=None,threads=None,proxy=False) -> None:
+    def __init__(self,accounts_to_register=None,threads=None,isproxy=False) -> None:
         self.registered = 0
         self.errors     = 0
         self.total      = 0
 
-
+        self.isproxy=isproxy
         self.session = requests.Session()
 
-        if proxy==True:
+        if isproxy==True:
             self.proxies = open("./proxies.txt", "r").read().splitlines()
 
             prox=random.choice(self.proxies)
@@ -212,8 +212,21 @@ class Account:
     def register(self) -> None:
         for _ in range(self.accounts_to_register):
             self.session = requests.Session()
-            self.proxy   = "http://" + random.choice(self.proxies)
-            self.session.proxies.update({"http": self.proxy, "https": self.proxy})
+            if self.isproxy==True:
+                self.proxies = open("./proxies.txt", "r").read().splitlines()
+
+                prox=random.choice(self.proxies)
+                if "socks" in prox:
+                    self.proxy   = prox
+                else:
+                    self.proxy   = "http://" + prox
+
+                self.session.proxies.update({"http": self.proxy, "https": self.proxy})
+            else:
+                self.proxy   =None
+            
+            
+            
             self.device = self.generate_device()
             email       = Email().create_email()
             password    = "".join(random.choices(string.ascii_lowercase, k = 9)) + "".join(random.choices(string.digits, k = 4))
