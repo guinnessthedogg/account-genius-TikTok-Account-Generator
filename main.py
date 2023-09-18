@@ -233,13 +233,11 @@ class Account:
 
 
 if __name__ == "__main__":
-    accounts_to_register = int(os.getenv("accounts_to_register"))
-    threads =int(os.getenv("threads")) 
     
-    if accounts_to_register is None:
-        accounts_to_register=10
-    if threads is None:
-        threads=10
+    if accounts_to_register is not None:
+        accounts_to_register = int(os.getenv("accounts_to_register"))
+    if threads is not None:
+        threads =int(os.getenv("threads")) 
     if  platform.system()=='Linux':
 
         Account(accounts_to_register=accounts_to_register,threads=threads).start()
