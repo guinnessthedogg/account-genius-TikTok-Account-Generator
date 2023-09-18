@@ -201,8 +201,9 @@ class Account:
 
 if __name__ == "__main__":
 
-    accounts_to_register = os.getenv("accounts_to_register")
-    threads = os.getenv("threads")
+    accounts_to_register = int(os.getenv("accounts_to_register"))
+    threads =int(os.getenv("threads")) 
+    
     if accounts_to_register is None:
         accounts_to_register=10
     if threads is None:
