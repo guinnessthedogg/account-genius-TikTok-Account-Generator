@@ -1,6 +1,6 @@
 from utils.api import *
 from utils.eazyui import *
-import os
+import os,platform
 
 config = json.loads(open("config.json", "r").read())
 
