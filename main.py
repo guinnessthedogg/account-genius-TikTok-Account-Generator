@@ -234,9 +234,9 @@ class Account:
 
 if __name__ == "__main__":
     
-    if accounts_to_register is not None:
+    if os.getenv("accounts_to_register") is not None:
         accounts_to_register = int(os.getenv("accounts_to_register"))
-    if threads is not None:
+    if os.getenv("threads") is not None:
         threads =int(os.getenv("threads")) 
     if  platform.system()=='Linux':
 
