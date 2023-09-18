@@ -207,8 +207,7 @@ if __name__ == "__main__":
         accounts_to_register=10
     if threads is None:
         threads=10
-    if  platform.system()=='Linux'
-    
+    if  platform.system()=='Linux':
 
         Account(accounts_to_register=accounts_to_register,threads=threads).start()
     else:
