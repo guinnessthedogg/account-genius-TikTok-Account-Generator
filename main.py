@@ -38,12 +38,15 @@ class Account:
             self.session.proxies.update({"http": self.proxy, "https": self.proxy})
         else:
             self.proxy   =None
-        self.accounts_to_register=accounts_to_register
         if accounts_to_register is  None:
             self.accounts_to_register = int(config['number_of_accounts']) 
+        else:
+            self.accounts_to_register=accounts_to_register
         if threads is  None:
             self.threads = int(config['threads'])
-
+        else:
+            self.threads=threads
+            
     def base_params(self) -> dict:
         return urllib.parse.urlencode(
             {

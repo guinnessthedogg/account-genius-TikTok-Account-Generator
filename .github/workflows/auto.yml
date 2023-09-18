@@ -5,11 +5,11 @@ on:
       accounts_to_register:
         description: accounts_to_register
         type: number
-        required: true
+        required: false
       threads:
         description: threads
         type: number
-        required: true
+        required: false
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
