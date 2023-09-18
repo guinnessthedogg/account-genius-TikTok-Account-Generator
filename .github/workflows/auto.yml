@@ -4,11 +4,11 @@ on:
     inputs:
       accounts_to_register:
         description: accounts_to_register
-        type: enviroment
+        type: number
         required: true
       threads:
         description: threads
-        type: boolean
+        type: number
         required: true
 jobs:
   build-ubuntu:
