@@ -2,21 +2,33 @@
 # This project is under GNU GENERAL PUBLIC LICENSE
 
 from utils.api import *
+import platform
 
 class Account:
-    def __init__(self) -> None:
+    def __init__(self,accounts_to_register,threads,proxy=False) -> None:
         self.registered = 0
         self.errors     = 0
         self.total      = 0
 
-        self.proxies = open("./proxies.txt", "r").read().splitlines()
 
         self.session = requests.Session()
-        self.proxy   = "http://" + random.choice(self.proxies)
-        self.session.proxies.update({"http": self.proxy, "https": self.proxy})
+        # self.proxy   = "http://" + random.choice(self.proxies)
+        if proxy==True:
+            self.proxies = open("./proxies.txt", "r").read().splitlines()
 
-        self.accounts_to_register = int(input("Number of accounts to register: "))
-        self.threads              = int(input("Threads: "))
+            self.proxy   = random.choice(self.proxies)
+
+            print(self.proxy)
+            self.session.proxies.update({"http": self.proxy, "https": self.proxy})
+        else:
+            self.proxy   =None
+        # resp = requests.get('http://www.youtube.com', 
+        #                     proxies=dict(http=random.choice(self.proxies),
+        #                                 https=random.choice(self.proxies)))        
+        # print(resp.status_code)
+
+        self.accounts_to_register = accounts_to_register
+        self.threads              = threads
 
     def base_params(self) -> dict:
         return urllib.parse.urlencode(
@@ -188,4 +200,11 @@ class Account:
 
 
 if __name__ == "__main__":
-    Account().start()
+    # if  platform.system()=='Linux'
+    
+
+    #     Account().start()
+    # else:
+    #     Account(proxy=True).start()
+
+    Account(accounts_to_register=2,threads=2,proxy=True).start()

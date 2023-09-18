@@ -34,3 +34,11 @@
 ### `👨‍💻` Contact
 - **Telegram**: @angelillija
 - **Discord**: @angel.illija
+
+
+
+
+socks5 on mac should be
+
+socks5h://127.0.0.1:1080
+

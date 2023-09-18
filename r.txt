@@ -1,0 +1,3 @@
+pycryptodome
+Terminalia
+requests[socks]
