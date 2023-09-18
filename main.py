@@ -1,34 +1,48 @@
-# Made by Angel Illija
-# This project is under GNU GENERAL PUBLIC LICENSE
-
 from utils.api import *
-import platform
+from utils.eazyui import *
 import os
+
+config = json.loads(open("config.json", "r").read())
+
+class Output:
+    def error(txt) -> None:
+        Console.printError(str(txt), PrintType.CLEAN)
+
+    def debug(txt: str) -> None:
+        Console.printInfo(str(txt), PrintType.CLEAN)
+
+    def good(txt: str) -> None:
+        Console.printSuccess(str(txt), PrintType.CLEAN)
+
+    def other(txt: str) -> None:
+        Console.printOther(str(txt), PrintType.CLEAN)
+
 class Account:
-    def __init__(self,accounts_to_register,threads,proxy=False) -> None:
+    def __init__(self,accounts_to_register=None,threads=None,proxy=False) -> None:
         self.registered = 0
         self.errors     = 0
         self.total      = 0
 
 
         self.session = requests.Session()
-        # self.proxy   = "http://" + random.choice(self.proxies)
+
         if proxy==True:
             self.proxies = open("./proxies.txt", "r").read().splitlines()
 
-            self.proxy   = random.choice(self.proxies)
+            prox=random.choice(self.proxies)
+            if "socks" in prox:
+                self.proxy   = prox
+            else:
+                self.proxy   = "http://" + prox
 
-            print(self.proxy)
             self.session.proxies.update({"http": self.proxy, "https": self.proxy})
         else:
             self.proxy   =None
-        # resp = requests.get('http://www.youtube.com', 
-        #                     proxies=dict(http=random.choice(self.proxies),
-        #                                 https=random.choice(self.proxies)))        
-        # print(resp.status_code)
-
-        self.accounts_to_register = accounts_to_register
-        self.threads              = threads
+        self.accounts_to_register=accounts_to_register
+        if accounts_to_register is  None:
+            self.accounts_to_register = int(config['number_of_accounts']) 
+        if threads is  None:
+            self.threads = int(config['threads'])
 
     def base_params(self) -> dict:
         return urllib.parse.urlencode(
@@ -144,16 +158,23 @@ class Account:
         email: str    = None,
         password: str = None
     ) -> None:
-    
-        response = self.session.post(
-            url     = "https://api2.musical.ly/passport/email/send_code/",
-            params  = self.base_params(),
-            data    = self.base_data({"password": Utils().xor(password), "email": Utils().xor(email)}), 
-            headers = self.base_headers()
-        
-        )
-        if not response.json()["message"] == "success":
-            print(response.json())
+
+        try:
+            response = self.session.post(
+                url     = "https://api2.musical.ly/passport/email/send_code/",
+                params  = self.base_params(),
+                data    = self.base_data({"password": Utils().xor(password), "email": Utils().xor(email)}), 
+                headers = self.base_headers()
+            
+            )
+            if not response.json()["message"] == "success":
+                Output.other(response.json())
+        except requests.exceptions.ProxyError as e:
+            Output.error(f"Invalid Proxy, retrying:{e}")
+            self.send_code(email,password)
+        except requests.exceptions.SSLError as e:
+            Output.error(f"Invalid Proxy, retrying:{e}")
+            return self.send_code(email,password)
 
     def verify_code(
         self,
@@ -161,26 +182,35 @@ class Account:
         email: str    = None,
         password: str = None
     ) -> None:
+        try:
+            response = self.session.post(
+                url     = "https://api2.musical.ly/passport/email/register_verify_login/",
+                params  = self.base_params(), 
+                data    = self.base_data({"password": Utils().xor(password), "email": Utils().xor(email), "code": code}), 
+                headers = self.base_headers()
+            )
+            if response.text.__contains__("session_key"):
+                self.registered += 1
 
-        response = self.session.post(
-            url     = "https://api2.musical.ly/passport/email/register_verify_login/",
-            params  = self.base_params(), 
-            data    = self.base_data({"password": Utils().xor(password), "email": Utils().xor(email), "code": code}), 
-            headers = self.base_headers()
-        )
-        if response.text.__contains__("session_key"):
-            self.registered += 1
-
-            session_id = response.json()["data"]["session_key"]
-            
-            open("./output/accounts.txt", "a").write(f"{self.device[0]}:{self.device[1]}:{email}:{password}:{session_id}\n")
-            print(f"[ {self.registered} ] Registered Account | [Device ID: {self.device[0]} Install ID:{self.device[1]} Email: {email} Password: {password} Session ID: {session_id}]")
-        else:
-            print(response.json())
+                session_id = response.json()["data"]["session_key"]
+                
+                open("./output/accounts.txt", "a").write(f"{self.device[0]}:{self.device[1]}:{email}:{password}:{session_id}\n")
+                Output.good(f"[ {self.registered} ] Registered Account | [Device ID: {self.device[0]} Install ID:{self.device[1]} Email: {email} Password: {password} Session ID: {session_id}]")
+            else:
+                Output.other(response.json())
+        except requests.exceptions.ProxyError:
+            Output.error("Invalid Proxy, retrying")
+            self.verify_code(code,email,password)
+        except requests.exceptions.SSLError:
+            Output.error("Invalid Proxy, retrying")
+            return self.verify_code(code,email,password)
 
 
     def register(self) -> None:
         for _ in range(self.accounts_to_register):
+            self.session = requests.Session()
+            self.proxy   = "http://" + random.choice(self.proxies)
+            self.session.proxies.update({"http": self.proxy, "https": self.proxy})
             self.device = self.generate_device()
             email       = Email().create_email()
             password    = "".join(random.choices(string.ascii_lowercase, k = 9)) + "".join(random.choices(string.digits, k = 4))
@@ -200,7 +230,6 @@ class Account:
 
 
 if __name__ == "__main__":
-
     accounts_to_register = int(os.getenv("accounts_to_register"))
     threads =int(os.getenv("threads")) 
     
