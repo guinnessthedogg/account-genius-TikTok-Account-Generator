@@ -3,7 +3,7 @@
 
 from utils.api import *
 import platform
-
+import os
 class Account:
     def __init__(self,accounts_to_register,threads,proxy=False) -> None:
         self.registered = 0
@@ -200,11 +200,17 @@ class Account:
 
 
 if __name__ == "__main__":
-    # if  platform.system()=='Linux'
+
+    accounts_to_register = os.getenv("accounts_to_register")
+    threads = os.getenv("threads")
+    if accounts_to_register is None:
+        accounts_to_register=10
+    if threads is None:
+        threads=10
+    if  platform.system()=='Linux'
     
 
-    #     Account().start()
-    # else:
-    #     Account(proxy=True).start()
+        Account(accounts_to_register=accounts_to_register,threads=threads).start()
+    else:
 
-    Account(accounts_to_register=2,threads=2,proxy=True).start()
+        Account(accounts_to_register=accounts_to_register,threads=threads,proxy=True).start()
